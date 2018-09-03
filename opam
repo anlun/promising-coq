@@ -1,6 +1,6 @@
 opam-version: "1.2"
 name: "coq-promising"
-maintainer: "Jeehoon Kang <jeehoon.kang@sf.snu.ac.kr>"
+maintainer: "Anton Podkopaev <podkoav239@gmail.com>"
 authors: ["Jeehoon Kang <jeehoon.kang@sf.snu.ac.kr>",
           "Chung-Kil Hur <gil.hur@sf.snu.ac.kr>",
           "Ori Lahav <ori.lahav@tau.ac.il>",
@@ -10,7 +10,10 @@ homepage: "https://github.com/snu-sf/promising-coq"
 bug-reports: "https://github.com/snu-sf/promising-coq/issues"
 license: "MIT"
 dev-repo: "https://github.com/snu-sf/promising-coq/hahn.git"
-build: [make "-j%{jobs}%"]
+build: [
+  ["git" "submodule" "update" "--init" "--recursive"]
+  [make "-j%{jobs}%"]
+]
 install: [make "-f Makefile.coq install"]
 remove: ["rm" "-rf" "%{lib}%/coq/user-contrib/promising"]
 depends: [
