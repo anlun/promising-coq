@@ -54,7 +54,7 @@ Definition CoherentTSO acts sb rmw rf mo :=
   << Cscf: irreflexive (reads_before_tso rf mo ;; mo ;; <| is_sc_fence |> ;; sb) >> /\
   << Cscu: irreflexive (reads_before_tso rf mo ;; mo ;; transp rmw ;; rmw ;; sb) >>.
 
-Hint Immediate inclusion_eqv_rt : rel.
+Hint Immediate inclusion_eqv_rt : hahn.
 
 Section Inside_SB_RF.
 
@@ -68,33 +68,33 @@ Proof. apply WF_RMW. Qed.
 Lemma useq_in_sb_rf : inclusion (useq rmw rf) (clos_trans (sb +++ rf)).
 Proof.
   unfold useq; rewrite rmw_in_sb, inclusion_seq_eqv_r.
-  eauto using inclusion_t_t2, inclusion_step2_ct with rel.
+  eauto using inclusion_t_t2, inclusion_step2_ct with hahn.
 Qed.
 
 Lemma rseq_in_sb_rf : inclusion (rseq acts sb rmw rf) (clos_refl_trans (sb +++ rf)).
 Proof.
   unfold rseq.
-  rewrite !inclusion_seq_eqv_l, useq_in_sb_rf, inclusion_restr_eq, cr_of_t; ins.
-  eapply inclusion_seq_rt; eauto with rel. 
+  rewrite !inclusion_seq_eqv_l, useq_in_sb_rf, inclusion_restr_eq, cr_of_ct; ins.
+  eapply inclusion_seq_rt; eauto with hahn. 
 Qed.
 
 Lemma rel_in_sb_rf :inclusion (rel acts sb rmw rf) (clos_refl_trans (sb +++ rf)).
 Proof.
   unfold rel.
   rewrite !inclusion_seq_eqv_l, rseq_in_sb_rf; ins.
-  eapply inclusion_seq_rt; eauto with rel. 
+  eapply inclusion_seq_rt; eauto with hahn. 
 Qed.
 
 Lemma sw_in_sb_rf : inclusion (sw acts sb rmw rf) (clos_trans (sb +++ rf)).
 Proof.
   unfold sw; rewrite !inclusion_seq_eqv_l, !inclusion_seq_eqv_r, rel_in_sb_rf; ins.
   rewrite <- rt_ct; apply inclusion_seq_mon; ins. 
-  rewrite crE; rel_simpl; eauto using inclusion_step2_ct with rel. 
+  rewrite crE; relsf; eauto using inclusion_step2_ct with hahn. 
 Qed.
 
 Lemma hb_in_sb_rf : inclusion (hb acts sb rmw rf) (clos_trans (sb +++ rf)).
 Proof.
-  unfold hb; rewrite sw_in_sb_rf; ins; eauto using inclusion_t_t2 with rel.
+  unfold hb; rewrite sw_in_sb_rf; ins; eauto using inclusion_t_t2 with hahn.
 Qed.
 
 End Inside_SB_RF.
@@ -114,15 +114,14 @@ Proof.
     [rewrite IN at 1 | rewrite IN at 3];
   rewrite <- unionA, unionK, ?seq_union_l, ?seq_union_r; repeat apply inclusion_union_l; vauto.
   by right; repeat (eexists; try edone); vauto. 
-  rewrite SB; eauto with rel.
-  rewrite crE, !seq_union_r, seq_id_r; eauto 8 with rel.
-  rewrite !seqA, SBR; eauto with rel.
+  rewrite SB; eauto with hahn.
+  rewrite crE, !seq_union_r, seq_id_r; eauto 8 with hahn.
+  rewrite !seqA, SBR; eauto with hahn.
   apply inclusion_union_r; right; apply inclusion_seq_mon.
-    repeat eapply inclusion_seq_rt; eauto with rel.
-    by unfold external; red; ins; desf; vauto.
+  repeat eapply inclusion_seq_rt; eauto with hahn.
+  unfold external; red; ins; desf; vauto.
   by eexists; vauto.
 Qed.
-
 
 (** This following theorem essentially proves the soundness of compilation to TSO: 
 every TSO-coherent execution graph can be mapped to a PromiseFree-coherent execution graph.
@@ -137,22 +136,22 @@ Proof.
   clear Cscu.
 
   assert (INC: inclusion (rf ;; tc (sb +++ rf)) (tc (sb +++ rf))).
-    by eauto using inclusion_seq_mon, inclusion_r_t_t with rel. 
+    by eauto using inclusion_seq_mon, inclusion_r_t_t with hahn. 
   assert (INC2: inclusion (clos_refl rf ;; tc (sb +++ rf)) (tc (sb +++ rf))).
-    by eauto using inclusion_seq_mon, inclusion_r_t_t with rel. 
+    by eauto using inclusion_seq_mon, inclusion_r_t_t with hahn. 
 
   assert (TOT:  is_total (fun a => In a acts /\ is_sc_fence a) (restr_rel is_sc_fence mo)).
     by unfold restr_rel; red in WF_MO; desc; red; ins; desf; eapply MO_TOT in NEQ; desf; eauto.
   splits; try done.
 {
-  red in WF_MO; desc; red; splits; eauto using restr_eq_trans, restr_rel_trans;
+  red in WF_MO; desc; red; splits; eauto using restr_eq_trans, transitive_restr;
   unfold restr_eq_rel, restr_rel; ins; desf; eauto.
   unfold loc in *; destruct a as [??[]]; simpls; destruct b as [??[]]; simpls; vauto. 
   red; ins; desf; eauto.
   red; ins; desf; eapply MO_TOT in NEQ; desf; eauto; [left|right]; splits; eauto; congruence.
 }
 {
-  red in WF_MO; desc; red; splits; eauto using restr_eq_trans, restr_rel_trans;
+  red in WF_MO; desc; red; splits; eauto using restr_eq_trans, transitive_restr;
   unfold restr_eq_rel, restr_rel; ins; desf; eauto.
   red; ins; desf; eauto.
 }
@@ -204,8 +203,8 @@ Proof.
 
  red in WF_MO; desc.
  eapply acyclic_decomp_u_total; eauto. 
-   by unfold restr_rel; ins; desf; eauto 8. 
-   by rewrite inclusion_restr, ct_of_trans, irreflexive_seqC, crtE, 
+ { unfold restr_rel. red. ins; desf. eauto 8. }
+   by rewrite inclusion_restr, ct_of_trans, irreflexive_seqC, rtE, 
       seq_union_r, seq_id_r, irreflexive_union.
 Qed.
 

@@ -45,7 +45,7 @@ Section Graph_steps_fence.
   Hint Resolve rwr_mon: mon.
   Hint Resolve S_tmr_mon: mon.
 
-  Hint Resolve wmax_elt_eqv : rel.
+  Hint Resolve wmax_elt_eqv : hahn.
   Hint Resolve max_elt_sb max_elt_rmw max_elt_rf max_elt_sc : rel_max.
   Hint Resolve max_elt_useq : rel_max.
   Hint Resolve wmax_elt_rseq : rel_max.
@@ -77,14 +77,14 @@ Section Graph_steps_fence.
 Ltac relsimp := 
   repeat first 
          [rewrite seq_id_l | rewrite seq_id_r 
-          | rewrite unionFr | rewrite unionrF 
-          | rewrite seqFr | rewrite seqrF 
+          | rewrite union_false_l | rewrite union_false_r 
+          | rewrite seq_false_l | rewrite seq_false_r 
           | rewrite gstep_a_acts
           | rewrite (seq2 gstep_a_acts)
           | rewrite restr_eq_seq_eqv_l 
-          | rewrite restr_eq_seq_eqv_rel 
+          | rewrite restr_eq_seq_eqv_r
           | rewrite restr_eq_union 
-          | rewrite clos_refl_union1 
+          | rewrite cr_union_l 
           | rewrite seq_union_l
           | rewrite seq_union_r 
           | rewrite seqA ]; try done.
@@ -118,7 +118,7 @@ Lemma gstep_hb_fence :
 Proof.
   unfold hb; rewrite gstep_sw_fence, (gstep_sb COH GSTEP); try edone.
   rewrite unionAC, unionA, unionAC, <- unionA.
-  rewrite path_absorb_rt, cr_of_t; ins.
+  rewrite path_absorb_rt, cr_of_ct; ins.
     left; rewrite inclusion_seq_eqv_r.
     etransitivity. 
       eapply seq_mori, inclusion_refl. 
@@ -185,18 +185,18 @@ Proof.
         clos_refl sc';; clos_refl (hb acts' sb' rmw' rf') +++
       <| fun x => is_write x /\ loc x = Some l |> ;; rf' ;; 
         <| is_rlx_rw |> ;; clos_refl (hb acts' sb' rmw' rf')).
-  { rewrite !crE; rel_simpl.
-    rewrite !(gstep_seq_max (a:=a) (rfhbsc_opt_mon GSTEP (l:=l))); eauto with rel rel_max. 
+  { rewrite !crE; relsf.
+    rewrite !(gstep_seq_max (a:=a) (rfhbsc_opt_mon GSTEP (l:=l))); eauto with hahn rel_max. 
     rewrite !seqA.
-    split; repeat apply inclusion_union_l; eauto 8 with rel mon.
+    split; repeat apply inclusion_union_l; eauto 8 with hahn mon.
   }
   rewrite (gstep_sc COH GSTEP); relsimp.
-rewrite (seq_sc_ext_max_r); eauto with rel rel_max; relsimp.
+rewrite (seq_sc_ext_max_r); eauto with hahn rel_max; relsimp.
   rewrite gstep_hb_fence; try done; relsimp.
   rewrite gstep_rfhbsc_opt_fence; try done; relsimp.
   rewrite (gstep_rf_nonread COH GSTEP); try edone; relsimp.
-  split; repeat apply inclusion_union_l; eauto 12 with rel.
-  by rewrite <- !inclusion_union_r1; rewrite crE, crE; relsimp; eauto with rel.
+  split; repeat apply inclusion_union_l; eauto 12 with hahn.
+  by rewrite <- !inclusion_union_r1; rewrite crE, crE; relsimp; eauto with hahn.
 Qed.
 
 
@@ -217,11 +217,11 @@ Proof.
   assert (N: ~ is_write a /\ ~ is_read a); desc.
     by unfold is_read, is_write, is_fence in *; destruct (lab a); ins.
   unfold rwr.
-  rewrite seq2; eauto with rel rel_max.
+  rewrite seq2; eauto with hahn rel_max.
   rewrite (gstep_rf_nonread COH GSTEP) at 2; try edone; relsimp.
   rewrite gstep_urr_fence, gstep_hb_fence; try edone.
   relsimp.
-  split; repeat apply inclusion_union_l; eauto 12 with rel. 
+  split; repeat apply inclusion_union_l; eauto 12 with hahn. 
 Qed.
 
 
@@ -238,7 +238,7 @@ Lemma gstep_S_tmr_scfence_expand (SC: is_sc_fence a) l :
 Proof. 
   assert (M: ~ is_read a /\ ~ is_write a /\ << FSC: is_sc_fence a >>); desc.
     by destruct a as [??[]]; intuition; ins.
-  rewrite (crE (_ ;; _)); rel_simpl.
+  rewrite (crE (_ ;; _)); relsf.
   unfold S_tmr.
   rewrite gstep_rfhbsc_opt_fence; ins.
   rewrite seq_eqvC.
@@ -248,8 +248,8 @@ Proof.
   rewrite seq_eqvC.
   rewrite (seq2 (gstep_sb_ext_helper_dom GSTEP _ SC)),
           (gstep_sb_ext_helper_dom GSTEP _ SC).
-  split; repeat apply inclusion_union_l; eauto 10 with rel. 
-  rewrite inclusion_seq_eqv_r at 1; eauto with rel.
+  split; repeat apply inclusion_union_l; eauto 10 with hahn. 
+  rewrite inclusion_seq_eqv_r at 1; eauto with hahn.
 Qed.
 
 Lemma gstep_S_tmr_sscfence_expand (SC: is_sc_fence a) (ACQ: is_acq a) l :
@@ -261,7 +261,7 @@ Lemma gstep_S_tmr_sscfence_expand (SC: is_sc_fence a) (ACQ: is_acq a) l :
 Proof. 
   assert (M: ~ is_read a /\ ~ is_write a /\ << FSC: is_sc_fence a >>); desc.
     by destruct a as [??[]]; intuition; ins.
-  rewrite (crE (_ ;; _)); rel_simpl.
+  rewrite (crE (_ ;; _)); relsf.
   unfold S_tmr.
   rewrite gstep_rfhbsc_opt_fence; ins.
   rewrite seq_eqvC.
@@ -272,7 +272,7 @@ Proof.
   rewrite (seq2 (gstep_sb_ext_helper_dom GSTEP _ SC)),
           (gstep_sb_ext_helper_dom GSTEP _ SC),
           (gstep_sb_ext_helper_dom GSTEP _ ACQ).
-  split; repeat apply inclusion_union_l; eauto 10 with rel. 
+  split; repeat apply inclusion_union_l; eauto 10 with hahn. 
 Qed.
 
 Lemma gstep_acq_rwr_scfence_expand (SC : is_sc a) l :
@@ -297,7 +297,7 @@ Proof.
     rewrite crE; relsimp.
     rewrite seq_eqvC, (fun x => seq2 (gstep_sb_ext_helper_dom GSTEP _ x)); auto.
     by apply union_eq_helper2; rewrite inclusion_seq_eqv_l, seq_sb_ext_max; 
-       eauto with rel rel_max.
+       eauto with hahn rel_max.
 
   unfold c_cur, c_acq; rewrite gstep_rwr_fence; ins.
   rewrite seq_eqvC.
@@ -305,20 +305,20 @@ Proof.
           (gstep_sb_ext_helper_dom GSTEP _ FSC).
   relsimp.
   rewrite X; clear X.
-  rewrite !(fun x => seq2 (seq_sb_ext_max_r GSTEP x)); eauto with rel rel_max.
-  rewrite !(fun x => seq2 (seq_sc_ext_max_r acts x)); eauto with rel rel_max.
+  rewrite !(fun x => seq2 (seq_sb_ext_max_r GSTEP x)); eauto with hahn rel_max.
+  rewrite !(fun x => seq2 (seq_sc_ext_max_r acts x)); eauto with hahn rel_max.
   rewrite !(gstep_sc_ext_helper_dom acts); auto 2.
   rewrite !(gstep_sb_ext_helper_dom GSTEP (fun x => thread x = thread a 
                                                     \/ is_init x)); auto 2.
-  rewrite (gstep_seq_max (a:=a) (rel_mon GSTEP)); eauto with rel rel_max.
-  rewrite (gstep_rf_nonread COH GSTEP), !unionA; eauto with rel rel_max.
+  rewrite (gstep_seq_max (a:=a) (rel_mon GSTEP)); eauto with hahn rel_max.
+  rewrite (gstep_rf_nonread COH GSTEP), !unionA; eauto with hahn rel_max.
   apply union_more; ins.
   rewrite !(seq2 (thr_sb_ext2 GSTEP)).
   rewrite (thr_sb_ext2 GSTEP).
   rewrite (crE (_ ;; _)); relsimp.
-  split; repeat apply inclusion_union_l; eauto 10 with rel.
-  by rewrite inclusion_seq_eqv_r at 1; eauto 10 with rel.
-  by rewrite inclusion_seq_eqv_r at 1; eauto 10 with rel.
+  split; repeat apply inclusion_union_l; eauto 10 with hahn.
+  by rewrite inclusion_seq_eqv_r at 1; eauto 10 with hahn.
+  by rewrite inclusion_seq_eqv_r at 1; eauto 10 with hahn.
 Qed.
 
 
@@ -341,7 +341,7 @@ Proof.
              sb_ext acts a;; <| is_acq |>).
     by rewrite seq_eqvC, (fun x => seq2 (gstep_sb_ext_helper_dom GSTEP _ x)); auto.
 
-  rewrite (crE (sb_ext acts a)); rel_simpl.
+  rewrite (crE (sb_ext acts a)); relsf.
   unfold c_cur, c_acq; rewrite gstep_rwr_fence; ins.
   rewrite seq_eqvC.
   rewrite (seq2 (gstep_sb_ext_helper_dom GSTEP _ FSC)),
@@ -353,9 +353,9 @@ Proof.
   rewrite !(seq2 (thr_sb_ext2 GSTEP)), (thr_sb_ext2 GSTEP).
   rewrite !(gstep_sc_ext_helper_dom acts); auto 2.
   rewrite (crE (_ ;; _)); relsimp. 
-  split; repeat apply inclusion_union_l; eauto 10 with rel.
-  by rewrite inclusion_seq_eqv_r at 1; eauto 10 with rel.
-  by rewrite inclusion_seq_eqv_r at 1; eauto 10 with rel.
+  split; repeat apply inclusion_union_l; eauto 10 with hahn.
+  by rewrite inclusion_seq_eqv_r at 1; eauto 10 with hahn.
+  by rewrite inclusion_seq_eqv_r at 1; eauto 10 with hahn.
 Qed.
 
 Lemma gstep_t_rel_urr_scfence (SC: is_sc_fence a) l' l x :
@@ -364,7 +364,7 @@ Lemma gstep_t_rel_urr_scfence (SC: is_sc_fence a) l' l x :
 Proof.
   destruct (classic (is_write x /\ loc x = Some l /\ In x acts')); cycle 1.
     by split; intros; desf; destruct H; splits;
-       eauto with rel acts. 
+       eauto with hahn acts. 
 
   assert (M: ~ is_read a /\ ~ is_write a /\ <<REL: is_rel a >> /\ << FSC: is_sc_fence a >>); desc.
     eauto 10 with acts.
@@ -424,7 +424,7 @@ Lemma gstep_S_tm_wscfence (SC: is_sc_fence a) (NRA: ~ is_acq a) l x :
 Proof.
   destruct (classic (is_write x /\ loc x = Some l /\ In x acts)); cycle 1.
     split; intros; desf; destruct H; splits;
-    eauto with rel acts. 
+    eauto with hahn acts. 
     assert (AA: In x acts') by (eapply dom_in_acts; eauto using S_tmr_acta).
     cdes GSTEP; rewrite ACT_STEP in AA; ins; des; try subst x; ins.
     by apply S_tm_dom1 in H0; destruct a as [??[]].
@@ -434,7 +434,7 @@ Proof.
 
   unfold S_tm; rewrite gstep_S_tmr_scfence_expand, dom_union, dom_seq_eqv2; 
   ins; auto with acts.
-  rewrite seq_sb_ext_max; eauto with rel; relsimp.
+  rewrite seq_sb_ext_max; eauto with hahn; relsimp.
 
   rewrite (crE rf); relsimp; eauto.
   rewrite !dom_union, <- (dom_seq_eqv2 (fun x => In x acts) (_ ;; _)); ins.
@@ -462,7 +462,7 @@ Lemma gstep_S_tm_sscfence (SC: is_sc_fence a) (ACQ: is_acq a) l x :
 Proof.
   destruct (classic (is_write x /\ loc x = Some l /\ In x acts)); cycle 1.
     split; intros; desf; destruct H; splits;
-    eauto with rel acts. 
+    eauto with hahn acts. 
     assert (AA: In x acts') by (eapply dom_in_acts; eauto using S_tmr_acta).
     cdes GSTEP; rewrite ACT_STEP in AA; ins; des; try subst x; ins.
     by apply S_tm_dom1 in H0; destruct a as [??[]].
@@ -619,16 +619,16 @@ Lemma gstep_c_rel_urr_rafence l l' :
 Proof.
   unfold c_rel, c_cur, c_acq, S_tmr.
   rewrite gstep_urr_fence, gstep_sc_ext_rafence; try edone.
-  rewrite !seq_sb_ext_max with (r := <| is_sc_fence |>); eauto with rel rel_max.
-  rewrite !seq_sb_ext_max with (r := _ ;; <| is_sc_fence |>); eauto with rel rel_max.
+  rewrite !seq_sb_ext_max with (r := <| is_sc_fence |>); eauto with hahn rel_max.
+  rewrite !seq_sb_ext_max with (r := _ ;; <| is_sc_fence |>); eauto with hahn rel_max.
   relsimp.
   rewrite (seq2 (eqv_join is_acq is_rel)).
   rewrite !gstep_sb_ext_helper_w; auto.
-  split; repeat apply inclusion_union_l; eauto 10 with rel.
-    by rewrite crE; relsimp; eauto 10 with rel.
-  rewrite crE; relsimp; apply inclusion_union_l; eauto 10 with rel.
+  split; repeat apply inclusion_union_l; eauto 10 with hahn.
+    by rewrite crE; relsimp; eauto 10 with hahn.
+  rewrite crE; relsimp; apply inclusion_union_l; eauto 10 with hahn.
   rewrite <- (eqv_join is_acq is_rel).
-  rewrite inclusion_seq_eqv_l with (dom := is_acq) at 1; eauto 10 with rel.
+  rewrite inclusion_seq_eqv_l with (dom := is_acq) at 1; eauto 10 with hahn.
 Qed.
 
 Lemma gstep_c_rel_rwr_rafence l l' :
@@ -640,16 +640,16 @@ Lemma gstep_c_rel_rwr_rafence l l' :
 Proof.
   unfold c_rel, c_cur, c_acq, S_tmr.
   rewrite gstep_rwr_fence, gstep_sc_ext_rafence; try edone.
-  rewrite !seq_sb_ext_max with (r := <| is_sc_fence |>); eauto with rel rel_max.
-  rewrite !seq_sb_ext_max with (r := _ ;; <| is_sc_fence |>); eauto with rel rel_max.
+  rewrite !seq_sb_ext_max with (r := <| is_sc_fence |>); eauto with hahn rel_max.
+  rewrite !seq_sb_ext_max with (r := _ ;; <| is_sc_fence |>); eauto with hahn rel_max.
   relsimp.
   rewrite (seq2 (eqv_join is_acq is_rel)).
   rewrite !gstep_sb_ext_helper_w; auto.
-  split; repeat apply inclusion_union_l; eauto 10 with rel.
-    by rewrite crE; relsimp; eauto 10 with rel.
-  rewrite crE; relsimp; apply inclusion_union_l; eauto 10 with rel.
+  split; repeat apply inclusion_union_l; eauto 10 with hahn.
+    by rewrite crE; relsimp; eauto 10 with hahn.
+  rewrite crE; relsimp; apply inclusion_union_l; eauto 10 with hahn.
   rewrite <- (eqv_join is_acq is_rel).
-  rewrite inclusion_seq_eqv_l with (dom := is_acq) at 1; eauto 10 with rel.
+  rewrite inclusion_seq_eqv_l with (dom := is_acq) at 1; eauto 10 with hahn.
 Qed.
 
 Lemma gstep_t_rel_urr_rafence l l' x :
@@ -716,15 +716,15 @@ Proof.
   rewrite crE; relsimp. 
   unfold c_rel, c_cur, c_acq, S_tmr.
   rewrite gstep_urr_fence, gstep_sc_ext_rafence; try edone.
-  rewrite !seq_sb_ext_max with (r := <| is_sc_fence |>); eauto with rel rel_max.
-  rewrite !seq_sb_ext_max with (r := _ ;; <| is_sc_fence |>); eauto with rel rel_max.
+  rewrite !seq_sb_ext_max with (r := <| is_sc_fence |>); eauto with hahn rel_max.
+  rewrite !seq_sb_ext_max with (r := _ ;; <| is_sc_fence |>); eauto with hahn rel_max.
   rewrite !seqA, (seq2 (thr_sb_ext2 GSTEP)).
   relsimp.
   rewrite !(thr_sb_ext GSTEP), (thr_sb_ext2 GSTEP), seq_eqvC.
   rewrite (seq2 (thr_sb_ext GSTEP)).
   rewrite (crE (rel acts sb rmw rf;; rf;; <| is_rlx_rw |>)); relsimp.
-  split; repeat apply inclusion_union_l; eauto 10 with rel.
-  rewrite inclusion_seq_eqv_r at 1; eauto with rel.
+  split; repeat apply inclusion_union_l; eauto 10 with hahn.
+  rewrite inclusion_seq_eqv_r at 1; eauto with hahn.
 Qed.
 
 Lemma gstep_c_cur_rwr_rafence l :
@@ -736,15 +736,15 @@ Proof.
   rewrite crE; relsimp. 
   unfold c_rel, c_cur, c_acq, S_tmr.
   rewrite gstep_rwr_fence, gstep_sc_ext_rafence; try edone.
-  rewrite !seq_sb_ext_max with (r := <| is_sc_fence |>); eauto with rel rel_max.
-  rewrite !seq_sb_ext_max with (r := _ ;; <| is_sc_fence |>); eauto with rel rel_max.
+  rewrite !seq_sb_ext_max with (r := <| is_sc_fence |>); eauto with hahn rel_max.
+  rewrite !seq_sb_ext_max with (r := _ ;; <| is_sc_fence |>); eauto with hahn rel_max.
   rewrite !seqA, (seq2 (thr_sb_ext2 GSTEP)).
   relsimp.
   rewrite !(thr_sb_ext GSTEP), (thr_sb_ext2 GSTEP), seq_eqvC.
   rewrite (seq2 (thr_sb_ext GSTEP)).
   rewrite (crE (rel acts sb rmw rf;; rf;; <| is_rlx_rw |>)); relsimp.
-  split; repeat apply inclusion_union_l; eauto 10 with rel.
-  rewrite inclusion_seq_eqv_r at 1; eauto with rel.
+  split; repeat apply inclusion_union_l; eauto 10 with hahn.
+  rewrite inclusion_seq_eqv_r at 1; eauto with hahn.
 Qed.
 
 Lemma gstep_t_cur_urr_rafence l x :

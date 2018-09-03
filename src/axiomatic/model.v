@@ -133,10 +133,10 @@ Section Consistency.
     Proof. local_tac; rewrite !inclusion_seq_eqv_l; done. Qed.
   
     Lemma c_cur_acq_mon : inclusion (c_cur i tm) (c_acq i tm').
-    Proof. local_tac; rewrite crE; rel_simpl. Qed.
+    Proof. local_tac; rewrite crE; relsf. Qed.
 
     Lemma c_rel_acq_mon : inclusion (c_rel i l' tm) (c_acq i tm').
-    Proof. local_tac; rewrite !inclusion_seq_eqv_l, crE; rel_simpl. Qed.
+    Proof. local_tac; rewrite !inclusion_seq_eqv_l, crE; relsf. Qed.
 
   End MonotonicityLemmas.
 
@@ -144,7 +144,7 @@ Section Consistency.
   Proof. unfold seq, inclusion; ins; desf; vauto. Qed.
 
   Lemma cr_hb_hb : inclusion (clos_refl hb ;; hb) hb.
-  Proof. rewrite crE, seq_union_l, hb_hb; rel_simpl. Qed.
+  Proof. rewrite crE, seq_union_l, hb_hb; relsf. Qed.
 
   Lemma cr_hb_cr_hb : inclusion (clos_refl hb ;; clos_refl hb) (clos_refl hb).
   Proof. unfold seq, inclusion, clos_refl; ins; desf; eauto.
@@ -152,24 +152,24 @@ Section Consistency.
 
   Lemma urr_hb l : inclusion (urr l ;; hb) (urr l).
   Proof.
-    unfold urr. rewrite !seqA, cr_hb_hb; eauto with rel.
+    unfold urr. rewrite !seqA, cr_hb_hb; eauto with hahn.
   Qed.
 
   Lemma urr_cr_hb l : inclusion (urr l ;; clos_refl hb) (urr l).
   Proof.
-    unfold urr. rewrite !seqA, cr_hb_cr_hb; eauto with rel.
+    unfold urr. rewrite !seqA, cr_hb_cr_hb; eauto with hahn.
   Qed.
 
   Lemma rwr_hb l : inclusion (rwr l ;; hb) (rwr l). 
   Proof.
     unfold rwr; rewrite seq_union_l, urr_hb, !seqA, cr_hb_hb.
-    eauto 8 with rel.
+    eauto 8 with hahn.
   Qed.
 
   Lemma rwr_cr_hb l : inclusion (rwr l ;; clos_refl hb) (rwr l). 
   Proof.
     unfold rwr; rewrite seq_union_l, urr_cr_hb, !seqA, cr_hb_cr_hb.
-    eauto 8 with rel.
+    eauto 8 with hahn.
   Qed.
 
 (******************************************************************************)
@@ -377,28 +377,28 @@ Proof. cdes WF; cdes WF_SC; eauto. Qed.
 Lemma sc_domb : domb sc is_sc_fence.
 Proof. cdes WF; cdes WF_SC; eauto. Qed.
 Lemma useq_doma : doma useq is_write.
-Proof. unfold useq; eauto using rf_doma with rel. Qed.
+Proof. unfold useq; eauto using rf_doma with hahn. Qed.
 Lemma useq_domb : domb useq is_write.
-Proof. unfold useq; eauto using rmw_domb with rel. Qed.
+Proof. unfold useq; eauto using rmw_domb with hahn. Qed.
 Lemma rseq_doma : doma rseq is_write.
-Proof. unfold rseq; eauto with rel. Qed.
+Proof. unfold rseq; eauto with hahn. Qed.
 Lemma rseq_domb : domb rseq is_write.
-Proof. unfold rseq; rewrite <- !seqA; eauto using useq_domb with rel. Qed.
+Proof. unfold rseq; rewrite <- !seqA; eauto using useq_domb with hahn. Qed.
 Lemma rel_doma : doma rel is_rel.
-Proof. unfold rel; eauto with rel. Qed.
+Proof. unfold rel; eauto with hahn. Qed.
 Lemma rel_domb : domb rel is_write.
-Proof. unfold rel; eauto using rseq_domb with rel. Qed.
+Proof. unfold rel; eauto using rseq_domb with hahn. Qed.
 Lemma sw_doma : doma sw is_rel.
-Proof. unfold sw; eauto using rel_doma with rel. Qed.
+Proof. unfold sw; eauto using rel_doma with hahn. Qed.
 Lemma sw_domb : domb sw is_acq.
-Proof. unfold sw; eauto with rel. Qed.
+Proof. unfold sw; eauto with hahn. Qed.
 
 Lemma rfhbsc_opt_doma l : doma (rfhbsc_opt l) (fun a => is_write a /\ loc a = Some l).
-Proof. unfold rfhbsc_opt; eauto with rel. Qed.
+Proof. unfold rfhbsc_opt; eauto with hahn. Qed.
 Lemma urr_doma l : doma (urr l) (fun a => is_write a /\ loc a = Some l).
-Proof. unfold urr; eauto using rfhbsc_opt_doma with rel. Qed.
+Proof. unfold urr; eauto using rfhbsc_opt_doma with hahn. Qed.
 Lemma rwr_doma l : doma (rwr l) (fun a => is_write a /\ loc a = Some l).
-Proof. unfold rwr; eauto using urr_doma with rel. Qed.
+Proof. unfold rwr; eauto using urr_doma with hahn. Qed.
 
 Lemma rfhbsc_opt_doma1 l : doma (rfhbsc_opt l) is_write.
 Proof. red; ins; apply rfhbsc_opt_doma in REL; desf. Qed.
@@ -414,38 +414,38 @@ Lemma rwr_doma2 l : doma (rwr l) (fun a => loc a = Some l).
 Proof. red; ins; apply rwr_doma in REL; desf. Qed.
 
 Lemma c_rel_doma i l' tmr d: doma tmr d -> doma (c_rel i l' tmr) d.
-Proof. unfold c_rel; eauto with rel. Qed.
+Proof. unfold c_rel; eauto with hahn. Qed.
 Lemma c_rel_domb1 i l' tmr: domb (c_rel i l' tmr) (fun a => thread a = i \/ is_init a).
-Proof. unfold c_rel; eauto with rel. Qed.
+Proof. unfold c_rel; eauto with hahn. Qed.
 Lemma c_rel_domb2 i l' tmr: 
   domb (c_rel i l' tmr) (fun x => is_write x /\ loc x = Some l' \/ is_fence x). 
-Proof. unfold c_rel; eauto with rel. Qed.
+Proof. unfold c_rel; eauto with hahn. Qed.
 Lemma c_rel_domb3 i l' tmr: domb (c_rel i l' tmr) (is_rel).
-Proof. unfold c_rel; rewrite <- !seqA; eauto with rel. Qed.
+Proof. unfold c_rel; rewrite <- !seqA; eauto with hahn. Qed.
 
 Lemma c_cur_doma i tmr d: doma tmr d -> doma (c_cur i tmr) d.
-Proof. unfold c_cur; eauto with rel. Qed.
+Proof. unfold c_cur; eauto with hahn. Qed.
 Lemma c_cur_domb i tmr: domb (c_cur i tmr) (fun a => thread a = i \/ is_init a).
-Proof. unfold c_cur; eauto with rel. Qed.
+Proof. unfold c_cur; eauto with hahn. Qed.
 
 Lemma c_acq_doma i tmr d: doma tmr d -> doma (c_acq i tmr) d.
-Proof. unfold c_acq; eauto with rel. Qed.
+Proof. unfold c_acq; eauto with hahn. Qed.
 Lemma c_acq_domb i tmr: domb (c_acq i tmr) (fun a => thread a = i \/ is_init a).
-Proof. unfold c_acq; eauto with rel. Qed.
+Proof. unfold c_acq; eauto with hahn. Qed.
 
 Lemma m_rel_doma tmr d: doma tmr d -> doma (m_rel tmr) d.
-Proof. unfold m_rel; eauto with rel. Qed.
+Proof. unfold m_rel; eauto with hahn. Qed.
 Lemma m_rel_domb tmr: domb (m_rel tmr) is_write.
-Proof. unfold m_rel; eauto using rel_domb with rel. Qed.
+Proof. unfold m_rel; eauto using rel_domb with hahn. Qed.
 
 Lemma S_tmr_doma l: doma (S_tmr l) (fun a => is_write a /\ loc a = Some l).
-Proof. unfold S_tmr; eauto with rel. Qed.
+Proof. unfold S_tmr; eauto with hahn. Qed.
 Lemma S_tmr_doma1 l: doma (S_tmr l) is_write.
 Proof. unfold doma; ins; exploit S_tmr_doma; ins; desc; eauto. Qed.
 Lemma S_tmr_doma2 l: doma (S_tmr l) (fun a => loc a = Some l).
 Proof. unfold doma; ins; exploit S_tmr_doma; ins; desc; eauto. Qed.
 Lemma S_tmr_domb l: domb (S_tmr l) is_sc_fence.
-Proof. unfold S_tmr; eauto 10 with rel. Qed.
+Proof. unfold S_tmr; eauto 10 with hahn. Qed.
 
 Lemma rf_mo a b c (RF: rf a b) (MO: mo c b) : False.
 Proof.
@@ -515,48 +515,48 @@ Proof. red; cdes WF; cdes WF_SB; cdes WF_SC; eauto. Qed.
 
 Hint Resolve 
   sb_acta rmw_acta rf_acta mo_acta sc_acta 
-  sb_actb rmw_actb rf_actb mo_actb sc_actb : rel. 
+  sb_actb rmw_actb rf_actb mo_actb sc_actb : hahn. 
 
-Lemma useq_acta : acta useq. Proof. eauto with rel. Qed.
-Lemma useq_actb : actb useq. Proof. eauto with rel. Qed.
-Hint Resolve useq_acta useq_actb : rel. 
-Lemma rseq_acta : acta rseq. Proof. eauto with rel. Qed.
-Lemma rseq_actb : actb rseq. Proof. unfold rseq; rewrite <- !seqA; eauto 8 with rel. Qed.
-Hint Resolve rseq_acta rseq_actb : rel. 
-Lemma rel_acta : acta rel. Proof. unfold rel; rel_simpl; eauto with rel. Qed.
-Lemma rel_actb : actb rel. Proof. eauto with rel. Qed.
-Hint Resolve rel_acta rel_actb : rel. 
-Lemma sw_acta : acta sw. Proof. eauto with rel. Qed.
-Lemma sw_actb : actb sw. Proof. unfold sw; rewrite inclusion_seq_eqv_r; eauto with rel. Qed.
-Hint Resolve sw_acta sw_actb : rel.
-Lemma hb_acta : acta hb. Proof. eauto with rel. Qed.
-Lemma hb_actb : actb hb. Proof. eauto with rel. Qed.
-Hint Resolve hb_acta hb_actb : rel.
-Lemma rfhbsc_opt_acta l : acta (rfhbsc_opt l). Proof. eauto with rel. Qed.
-Lemma rfhbsc_opt_actb l : actb (rfhbsc_opt l). Proof. eauto with rel. Qed.
-Hint Resolve rfhbsc_opt_acta rfhbsc_opt_actb : rel.
-Lemma urr_acta l: acta (urr l). Proof. eauto 7 with rel. Qed.
-Lemma urr_actb l: actb (urr l). Proof. unfold urr; rewrite <- seqA; eauto 7 with rel. Qed. 
-Hint Resolve urr_acta urr_actb : rel.
-Lemma rwr_acta l: acta (rwr l). Proof. eauto with rel. Qed.
-Lemma rwr_actb l: actb (rwr l). Proof. unfold rwr; eauto with rel. Qed.
-Hint Resolve rwr_acta rwr_actb : rel.
+Lemma useq_acta : acta useq. Proof. eauto with hahn. Qed.
+Lemma useq_actb : actb useq. Proof. eauto with hahn. Qed.
+Hint Resolve useq_acta useq_actb : hahn. 
+Lemma rseq_acta : acta rseq. Proof. eauto with hahn. Qed.
+Lemma rseq_actb : actb rseq. Proof. unfold rseq; rewrite <- !seqA; eauto 8 with hahn. Qed.
+Hint Resolve rseq_acta rseq_actb : hahn. 
+Lemma rel_acta : acta rel. Proof. unfold rel; relsf; eauto 10 with hahn. Qed.
+Lemma rel_actb : actb rel. Proof. eauto with hahn. Qed.
+Hint Resolve rel_acta rel_actb : hahn. 
+Lemma sw_acta : acta sw. Proof. eauto with hahn. Qed.
+Lemma sw_actb : actb sw. Proof. unfold sw; rewrite inclusion_seq_eqv_r; eauto with hahn. Qed.
+Hint Resolve sw_acta sw_actb : hahn.
+Lemma hb_acta : acta hb. Proof. eauto with hahn. Qed.
+Lemma hb_actb : actb hb. Proof. eauto with hahn. Qed.
+Hint Resolve hb_acta hb_actb : hahn.
+Lemma rfhbsc_opt_acta l : acta (rfhbsc_opt l). Proof. eauto with hahn. Qed.
+Lemma rfhbsc_opt_actb l : actb (rfhbsc_opt l). Proof. eauto with hahn. Qed.
+Hint Resolve rfhbsc_opt_acta rfhbsc_opt_actb : hahn.
+Lemma urr_acta l: acta (urr l). Proof. eauto 7 with hahn. Qed.
+Lemma urr_actb l: actb (urr l). Proof. unfold urr; rewrite <- seqA; eauto 7 with hahn. Qed. 
+Hint Resolve urr_acta urr_actb : hahn.
+Lemma rwr_acta l: acta (rwr l). Proof. eauto with hahn. Qed.
+Lemma rwr_actb l: actb (rwr l). Proof. unfold rwr; eauto with hahn. Qed.
+Hint Resolve rwr_acta rwr_actb : hahn.
 
 Lemma c_rel_actb i l' tm : actb tm -> actb (c_rel i l' tm).
-Proof. unfold c_rel; rewrite <- !seqA; eauto with rel. Qed.
+Proof. unfold c_rel; rewrite <- !seqA; eauto with hahn. Qed.
 Lemma c_cur_actb i tm : actb tm -> actb (c_cur i tm).
-Proof. unfold c_cur; eauto with rel. Qed.
+Proof. unfold c_cur; eauto with hahn. Qed.
 Lemma c_acq_actb i tm : actb tm -> actb (c_acq i tm).
 Proof. unfold c_acq; rewrite <- !seqA;
-rewrite !inclusion_seq_eqv_r, !crE; rel_simpl; eauto 20 with rel. Qed.
+rewrite !inclusion_seq_eqv_r, !crE; relsf; eauto 20 with hahn. Qed.
 Lemma m_rel_acta tm : acta tm -> acta (m_rel tm).
-Proof. unfold m_rel; eauto with rel. Qed.
+Proof. unfold m_rel; eauto with hahn. Qed.
 Lemma m_rel_actb tm : actb (m_rel tm).
-Proof. unfold m_rel; eauto with rel. Qed.
+Proof. unfold m_rel; eauto with hahn. Qed.
 Lemma S_tmr_acta l : acta (S_tmr l).
-Proof. unfold S_tmr; eauto 10 with rel. Qed.
+Proof. unfold S_tmr; eauto 10 with hahn. Qed.
 Lemma S_tmr_actb l : actb (S_tmr l).
-Proof. eauto 10 with rel. Qed.
+Proof. eauto 10 with hahn. Qed.
 
 End WellFormedResults.
 
@@ -697,7 +697,7 @@ Proof.
   unfold eqv_rel; red; ins; desf; vauto.
 Qed.
 
-Hint Immediate inclusion_eqv_rt : rel.
+Hint Immediate inclusion_eqv_rt : hahn.
 
 Section CoherenceProperties.
 
@@ -709,38 +709,38 @@ Proof. apply COH. Qed.
 Lemma useq_in_sb_rf : inclusion useq (clos_trans (sb +++ rf)).
 Proof.
   unfold useq; rewrite rmw_in_sb, inclusion_seq_eqv_r.
-  eauto using inclusion_t_t2, inclusion_step2_ct with rel.
+  eauto using inclusion_t_t2, inclusion_step2_ct with hahn.
 Qed.
 
 Lemma rseq_in_sb_rf : inclusion rseq (clos_refl_trans (sb +++ rf)).
 Proof.
   unfold rseq.
-  rewrite !inclusion_seq_eqv_l, useq_in_sb_rf, inclusion_restr_eq, cr_of_t; ins.
-  eapply inclusion_seq_rt; eauto with rel. 
+  rewrite !inclusion_seq_eqv_l, useq_in_sb_rf, inclusion_restr_eq, cr_of_ct; ins.
+  eapply inclusion_seq_rt; eauto with hahn. 
 Qed.
 
 Lemma rel_in_sb_rf :inclusion rel (clos_refl_trans (sb +++ rf)).
 Proof.
   unfold rel.
   rewrite !inclusion_seq_eqv_l, rseq_in_sb_rf; ins.
-  eapply inclusion_seq_rt; eauto with rel. 
+  eapply inclusion_seq_rt; eauto with hahn. 
 Qed.
 
 Lemma sw_in_sb_rf : inclusion sw (clos_trans (sb +++ rf)).
 Proof.
   unfold sw; rewrite !inclusion_seq_eqv_l, !inclusion_seq_eqv_r, rel_in_sb_rf; ins.
   rewrite <- rt_ct; apply inclusion_seq_mon; ins. 
-  rewrite crE; rel_simpl; eauto using inclusion_step2_ct with rel. 
+  rewrite crE; relsf; eauto using inclusion_step2_ct with hahn. 
 Qed.
 
 Lemma hb_in_sb_rf : inclusion hb (clos_trans (sb +++ rf)).
 Proof.
-  unfold hb; rewrite sw_in_sb_rf; ins; eauto using inclusion_t_t2 with rel.
+  unfold hb; rewrite sw_in_sb_rf; ins; eauto using inclusion_t_t2 with hahn.
 Qed.
 
 Lemma hb_in_sb_rf_sc : inclusion hb (clos_trans (sb +++ rf +++ sc)).
 Proof.
-  rewrite hb_in_sb_rf; eauto with rel.
+  rewrite hb_in_sb_rf; eauto with hahn.
 Qed.
 
 Lemma irr_hb : irreflexive hb.
@@ -820,10 +820,10 @@ Qed.
 Lemma rseq_mo : inclusion rseq (clos_refl mo).
 Proof.
   unfold rseq.
-  rewrite useq_mo, inclusion_seq_eqv_l, crE; rel_simpl.
+  rewrite useq_mo, inclusion_seq_eqv_l, crE; relsf.
   apply inclusion_union_l; [by rewrite !inclusion_seq_eqv_l|]. 
   rewrite <- !seqA; apply inclusion_seq_trans; ins.
-    by apply cr_trans, COH.
+    by apply transitive_cr, COH.
   rewrite inclusion_seq_eqv_r.
   rewrite seq_eqv_l, seq_eqv_r; unfold restr_eq_rel in *; red; ins; desf.
   cdes COH; cdes WF; cdes WF_MO.
@@ -837,15 +837,16 @@ Qed.
 
 Lemma rel_mo : inclusion (<| is_write |> ;; rel) (clos_refl mo).
 Proof.
-  unfold rel; rewrite rseq_mo; rel_simpl.
+  unfold rel; rewrite rseq_mo; relsf.
   apply inclusion_union_l; [by rewrite !inclusion_seq_eqv_l|]. 
   unfold seq, eqv_rel; red; ins; desf; destruct z2 as [? ? []]; ins. 
 Qed.
 
 Lemma rel_hb_mo : inclusion rel (clos_refl hb ;; clos_refl mo).
 Proof.
-  unfold rel; rewrite rseq_mo, !inclusion_seq_eqv_l; rel_simpl.
-  rewrite (crE hb), inclusion_seq_eqv_l; rel_simpl.
+  unfold rel; rewrite rseq_mo, !inclusion_seq_eqv_l; relsf.
+  rewrite sb_in_hb.
+  rewrite (crE hb), inclusion_seq_eqv_l; relsf.
 Qed.
 
 
@@ -1053,9 +1054,9 @@ Section Exports.
   Proof. eapply dom_in_acts; eauto. Qed.
 
   Lemma acts_acq_urr : t_acq urr acts sb rmw rf sc i l x -> In x acts.
-  Proof. eapply dom_in_acts; eauto with rel. Qed.
+  Proof. eapply dom_in_acts; eauto with hahn. Qed.
   Lemma acts_acq_rwr : t_acq rwr acts sb rmw rf sc i l x -> In x acts.
-  Proof. eapply dom_in_acts; eauto with rel. Qed.
+  Proof. eapply dom_in_acts; eauto with hahn. Qed.
 
   Lemma acta_msg_urr : msg_rel urr acts sb rmw rf sc l x y -> In x acts.
   Proof. eapply m_rel_acta; eauto. Qed.
@@ -1068,7 +1069,7 @@ Section Exports.
   Proof. eapply m_rel_actb; eauto. Qed.
 
   Lemma acts_S_tm : S_tm acts sb rmw rf l x -> In x acts.
-  Proof. eapply dom_in_acts; eauto 10 with rel. Qed.
+  Proof. eapply dom_in_acts; eauto 10 with hahn. Qed.
 
   Lemma dom_dom_rel A (rel : relation A) f (H: doma rel f) a : dom_rel rel a -> f a. 
   Proof.
@@ -1087,21 +1088,21 @@ Section Exports.
   Lemma t_rel_dom tmr d: 
     doma (tmr acts sb rmw rf sc l) d ->
     t_rel tmr acts sb rmw rf sc i l' l x -> d x .
-  Proof. intro; apply dom_dom_rel; eauto with rel. Qed.
+  Proof. intro; apply dom_dom_rel; eauto with hahn. Qed.
   Lemma t_acq_dom tmr d: 
     doma (tmr acts sb rmw rf sc l) d ->
     t_acq tmr acts sb rmw rf sc i l x -> d x .
-  Proof. intro; apply dom_dom_rel; eauto with rel. Qed.
+  Proof. intro; apply dom_dom_rel; eauto with hahn. Qed.
   Lemma t_cur_dom tmr d: 
     doma (tmr acts sb rmw rf sc l) d ->
     t_cur tmr acts sb rmw rf sc i l x -> d x .
-  Proof. intro; apply dom_dom_rel; eauto with rel. Qed.
+  Proof. intro; apply dom_dom_rel; eauto with hahn. Qed.
 
   Lemma S_tm_dom1 : S_tm acts sb rmw rf l x -> is_write x.
-  Proof. apply dom_dom_rel; eauto using S_tmr_doma1 with rel. Qed.
+  Proof. apply dom_dom_rel; eauto using S_tmr_doma1 with hahn. Qed.
   Lemma S_tm_dom2:  S_tm acts sb rmw rf l x -> loc x = Some l.
   Proof. apply dom_dom_rel with (f:= (fun a : event => loc a = Some l)). 
-         eauto using S_tmr_doma2 with rel. Qed. 
+         eauto using S_tmr_doma2 with hahn. Qed. 
 
   Section MonotonicityLemmas.
 
@@ -1187,7 +1188,7 @@ Hint Resolve
         @t_acq_dom acts sb rmw rf sc i l x _ _ (urr_doma2 (l:=l)))
      (fun acts sb rmw rf sc i l x => 
         @t_acq_dom acts sb rmw rf sc i l x _ _ (rwr_doma2 (l:=l)))
-     urr_doma1 urr_doma2 rwr_doma1 rwr_doma2 S_tm_dom1 S_tm_dom2 : rel.
+     urr_doma1 urr_doma2 rwr_doma1 rwr_doma2 S_tm_dom1 S_tm_dom2 : hahn.
 
 Require Import Setoid Permutation.
 
