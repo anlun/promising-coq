@@ -12,7 +12,7 @@ license: "MIT"
 dev-repo: "https://github.com/snu-sf/promising-coq/hahn.git"
 build: [
   ["git" "submodule" "update" "--init" "--recursive"]
-  [make "-j%{jobs}%"]
+  [make "-j%{jobs}%" "build"]
 ]
 install: [make "-f Makefile.coq install"]
 remove: ["rm" "-rf" "%{lib}%/coq/user-contrib/promising"]
