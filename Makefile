@@ -1,5 +1,5 @@
 COQMODULE    := promising 
-COQTHEORIES  := lib/sflib/*.v lib/paco/src/*.v lib/hahn/*.v src/drf/*.v src/lang/*.v src/lib/*.v src/opt/*.v src/prop/*.v src/while/*.v
+COQTHEORIES  := lib/sflib/*.v lib/paco/src/*.v src/drf/*.v src/lang/*.v src/lib/*.v src/opt/*.v src/prop/*.v src/while/*.v
 
 .PHONY: all theories clean
 
@@ -26,7 +26,7 @@ paco-quick: lib/paco/src
 Makefile.coq: Makefile $(COQTHEORIES)
 	(echo "-R lib/sflib sflib"; \
    echo "-R lib/paco/src Paco"; \
-   echo "-R lib/hahn $(COQMODULE)"; \
+   # echo "-R lib/hahn $(COQMODULE)"; \
    \
    echo "-R src/lib $(COQMODULE)"; \
    echo "-R src/lang $(COQMODULE)"; \
