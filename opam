@@ -10,7 +10,7 @@ authors: ["Jeehoon Kang <jeehoon.kang@sf.snu.ac.kr>"
 homepage: "https://github.com/snu-sf/promising-coq"
 bug-reports: "https://github.com/snu-sf/promising-coq/issues"
 license: "MIT"
-dev-repo: "https://github.com/snu-sf/promising-coq/hahn.git"
+dev-repo: "https://github.com/snu-sf/promising-coq.git"
 build: [
   ["git" "submodule" "update" "--init" "--recursive"]
   [make "-j%{jobs}%" "build"]
