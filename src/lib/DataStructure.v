@@ -3,7 +3,7 @@ Require Import FunctionalExtensionality.
 Require Import MSetList.
 Require Import MSetFacts.
 
-Require Import sflib.
+From sflib Require Import sflib.
 
 Set Implicit Arguments.
 

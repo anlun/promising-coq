@@ -1,7 +1,7 @@
 Require Import Orders.
 
-Require Import sflib.
-Require Import paco.
+From sflib Require Import sflib.
+From Paco Require Import paco.
 
 Require Import DataStructure.
 Require Import DenseOrder.

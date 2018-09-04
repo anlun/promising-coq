@@ -1,8 +1,8 @@
 Require Import Omega.
 Require Import RelationClasses.
 
-Require Import paco.
-Require Import sflib.
+From Paco Require Import paco.
+From sflib Require Import sflib.
 
 Require Import Axioms.
 Require Import Basic.

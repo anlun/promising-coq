@@ -7,8 +7,8 @@ Require Import UsualFMapPositive.
 Require Import FMapFacts.
 Require Import MSetList.
 
-Require Import sflib.
-Require Import paco.
+From sflib Require Import sflib.
+From Paco Require Import paco.
 
 Require Import DataStructure.
 

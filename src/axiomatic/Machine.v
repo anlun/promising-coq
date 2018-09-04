@@ -3,8 +3,8 @@
 (******************************************************************************)
 
 Require Import Classical List Relations Peano_dec.
-Require Import sflib.
-Require Import paco.
+From sflib Require Import sflib.
+From Paco Require Import paco.
 Require Import Hahn.
 
 Require Import Axioms.

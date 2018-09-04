@@ -1,5 +1,5 @@
-Require Import paco5.
-Require Import sflib.
+From Paco Require Import paco5.
+From sflib Require Import sflib.
 
 Set Implicit Arguments.
 

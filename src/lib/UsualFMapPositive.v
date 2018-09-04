@@ -1,6 +1,6 @@
 Require Import Bool OrderedType ZArith OrderedType OrderedTypeEx FMapInterface FMapPositive FMapFacts ProofIrrelevance EqdepFacts.
 
-Require Import sflib.
+From sflib Require Import sflib.
 
 Set Implicit Arguments.
 Local Open Scope positive_scope.

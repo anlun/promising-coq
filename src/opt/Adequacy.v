@@ -1,6 +1,6 @@
 Require Import Program.
-Require Import sflib.
-Require Import paco.
+From sflib Require Import sflib.
+From Paco Require Import paco.
 
 Require Import Basic.
 Require Import Event.

@@ -1,10 +1,11 @@
 opam-version: "1.2"
 name: "coq-promising"
+version: "1.1"
 maintainer: "Anton Podkopaev <podkoav239@gmail.com>"
-authors: ["Jeehoon Kang <jeehoon.kang@sf.snu.ac.kr>",
-          "Chung-Kil Hur <gil.hur@sf.snu.ac.kr>",
-          "Ori Lahav <ori.lahav@tau.ac.il>",
-          "Viktor Vafeiadis <viktor@mpi-sws.org>",
+authors: ["Jeehoon Kang <jeehoon.kang@sf.snu.ac.kr>"
+          "Chung-Kil Hur <gil.hur@sf.snu.ac.kr>"
+          "Ori Lahav <ori.lahav@tau.ac.il>"
+          "Viktor Vafeiadis <viktor@mpi-sws.org>"
           "Derek Dreyer <dreyer@mpi-sws.org>"]
 homepage: "https://github.com/snu-sf/promising-coq"
 bug-reports: "https://github.com/snu-sf/promising-coq/issues"
@@ -18,4 +19,6 @@ install: [make "-f Makefile.coq install"]
 remove: ["rm" "-rf" "%{lib}%/coq/user-contrib/promising"]
 depends: [
   "coq" { (>= "8.8.1" & < "8.9~") | (= "dev") }
+  "paco" { >= "1.2.8" }
+  "sflib"
 ]

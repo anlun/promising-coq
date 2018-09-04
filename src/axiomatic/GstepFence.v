@@ -5,7 +5,7 @@
 Require Import Classical List Relations Peano_dec.
 Require Import Hahn.
 
-Require Import sflib.
+From sflib Require Import sflib.
 
 Require Import Event.
 

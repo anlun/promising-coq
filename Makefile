@@ -1,31 +1,31 @@
 COQMODULE    := promising 
-COQTHEORIES  := lib/sflib/*.v lib/paco/src/*.v src/drf/*.v src/lang/*.v src/lib/*.v src/opt/*.v src/prop/*.v src/while/*.v
+COQTHEORIES  := src/lib/*.v src/lang/*.v src/while/*.v src/prop/*.v src/drf/*.v src/opt/*.v
 
 .PHONY: all theories clean
 
 all: quick
 
-build: sflib paco Makefile.coq
+build: Makefile.coq
 	$(MAKE) -f Makefile.coq all
 
-quick: sflib-quick paco-quick Makefile.coq
+quick: Makefile.coq
 	$(MAKE) -f Makefile.coq quick
 
-sflib: lib/sflib
-	$(MAKE) -C lib/sflib
+# sflib: lib/sflib
+# 	$(MAKE) -C lib/sflib
 
-sflib-quick: lib/sflib
-	$(MAKE) -C lib/sflib quick
+# sflib-quick: lib/sflib
+# 	$(MAKE) -C lib/sflib quick
 
-paco: lib/paco/src
-	$(MAKE) -C lib/paco/src
+# paco: lib/paco/src
+# 	$(MAKE) -C lib/paco/src
 
-paco-quick: lib/paco/src
-	$(MAKE) -C lib/paco/src quick
+# paco-quick: lib/paco/src
+# 	$(MAKE) -C lib/paco/src quick
 
 Makefile.coq: Makefile $(COQTHEORIES)
-	(echo "-R lib/sflib sflib"; \
-   echo "-R lib/paco/src Paco"; \
+	(#echo "-R /usr/lib/coq/user-contrib/sflib sflib"; \
+   #echo "-R /usr/lib/coq/user-contrib/paco Paco"; \
    # echo "-R lib/hahn $(COQMODULE)"; \
    \
    echo "-R src/lib $(COQMODULE)"; \
@@ -36,7 +36,7 @@ Makefile.coq: Makefile $(COQTHEORIES)
    echo "-R src/drf $(COQMODULE)"; \
    # echo "-R src/invariant $(COQMODULE)"; \
    # echo "-R src/axiomatic $(COQMODULE)"; \
-   \
+	\
    echo $(COQTHEORIES)) > _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 

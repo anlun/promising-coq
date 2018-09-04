@@ -2,8 +2,8 @@ Require Import Basics.
 Require Import Bool.
 Require Import List.
 
-Require Import sflib.
-Require Import paco.
+From sflib Require Import sflib.
+From Paco Require Import paco.
 Require Import respectful9.
 
 Require Import Axioms.
