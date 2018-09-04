@@ -20,5 +20,5 @@ remove: ["rm" "-rf" "%{lib}%/coq/user-contrib/promising"]
 depends: [
   "coq" { (>= "8.8.1" & < "8.9~") | (= "dev") }
   "paco" { >= "1.2.8" }
-  "sflib"
+  "sflib" { >= "1.1" }
 ]
