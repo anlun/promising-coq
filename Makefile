@@ -1,4 +1,4 @@
-COQMODULE    := cmem
+COQMODULE    := promising
 COQTHEORIES  := src/lib/*.v src/lang/*.v src/while/*.v
 
 .PHONY: all theories clean
