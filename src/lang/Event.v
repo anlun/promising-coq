@@ -4,7 +4,7 @@ Require Import Orders.
 Require Import MSetList.
 Require Import Omega.
 
-Require Import sflib.
+From sflib Require Import sflib.
 
 Require Import Basic.
 Require Import Time.

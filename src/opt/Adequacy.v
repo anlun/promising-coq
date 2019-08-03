@@ -1,5 +1,5 @@
 Require Import Program.
-Require Import sflib.
+From sflib Require Import sflib.
 From Paco Require Import paco.
 
 Require Import Basic.

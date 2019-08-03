@@ -2,7 +2,7 @@ Require Import Omega.
 Require Import RelationClasses.
 Require Import Bool.
 
-Require Import sflib.
+From sflib Require Import sflib.
 From Paco Require Import paco.
 
 Require Import Axioms.

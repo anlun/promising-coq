@@ -7,7 +7,7 @@ Require Import Event.
 Require Import Syntax.
 Require Import Language.
 
-Require Import sflib.
+From sflib Require Import sflib.
 From Paco Require Import paco.
 
 Set Implicit Arguments.

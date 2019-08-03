@@ -1,7 +1,7 @@
 Require Import Omega.
 Require Import RelationClasses.
 
-Require Import sflib.
+From sflib Require Import sflib.
 
 Require Import Axioms.
 Require Import Basic.
