@@ -5,22 +5,13 @@ Require Import MSetList.
 Require Import Omega.
 
 From sflib Require Import sflib.
+Require Export Ident.
 
 Require Import Basic.
 Require Import Time.
 
 Set Implicit Arguments.
 Import ListNotations.
-
-
-Module Loc := Ident.
-Module LocSet := IdentSet.
-Module LocMap := IdentMap.
-Module LocFun := IdentFun.
-
-
-Module Const := Nat.
-
 
 Module Ordering.
   (* NOTE: we curently do not support the nonatomics (#61).  Nonatomic
